@@ -360,28 +360,14 @@
       background: var(--cream-dk);
     }
 
-    /* Placeholder gradient mimicking a salon photo */
-    .brand-img-frame::before {
-      content: '';
+    .brand-img-frame img {
       position: absolute;
       inset: 0;
-      background:
-        linear-gradient(160deg, #c4b09a 0%, #a8896d 40%, #8a6a50 100%);
-    }
-
-    .brand-img-frame::after {
-      content: 'Touché';
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-serif);
-      font-size: 3rem;
-      font-weight: 300;
-      letter-spacing: 0.15em;
-      color: rgba(253, 250, 248, 0.35);
-      font-style: italic;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
     }
 
     .brand-accent-box {
@@ -771,19 +757,12 @@
       aspect-ratio: auto;
     }
 
-    .exp-img::after {
-      content: '';
-      display: block;
+    .exp-img img {
+      width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #c4b09a, #a07858);
-    }
-
-    .exp-img:nth-child(2)::after {
-      background: linear-gradient(135deg, #b09080, #8a6555);
-    }
-
-    .exp-img:nth-child(3)::after {
-      background: linear-gradient(135deg, #d4b898, #b08060);
+      object-fit: cover;
+      object-position: center top;
+      display: block;
     }
 
     /* ── CTA ───────────────────────────────────────────────────── */
@@ -1128,7 +1107,9 @@
       <div class="brand-grid">
 
         <div class="brand-visual fade-up">
-          <div class="brand-img-frame"></div>
+          <div class="brand-img-frame">
+            <img src="images/brand-portrait.jpg" alt="Touché Hair Services — salon portrait" />
+          </div>
           <div class="brand-accent-box"></div>
           <div class="brand-badge">
             <div class="brand-badge-num">10+</div>
@@ -1376,9 +1357,15 @@
         </div>
 
         <div class="exp-visual fade-up fade-up-delay-2">
-          <div class="exp-img"></div>
-          <div class="exp-img"></div>
-          <div class="exp-img"></div>
+          <div class="exp-img">
+            <img src="images/exp-tall.jpg" alt="Hair styling result" />
+          </div>
+          <div class="exp-img">
+            <img src="images/exp-square-1.jpg" alt="Salon experience" />
+          </div>
+          <div class="exp-img">
+            <img src="images/exp-square-2.jpg" alt="Hair expertise" />
+          </div>
         </div>
 
       </div>
