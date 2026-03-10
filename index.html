@@ -1120,6 +1120,48 @@
 
       .brand-accent-box { width: 100px; height: 100px; bottom: -16px; right: -16px; }
     }
+
+    /* ── Scroll-Up Button ──────────────────────────────────────── */
+    #scroll-up {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 900;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--charcoal);
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
+      pointer-events: none;
+    }
+    #scroll-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    #scroll-up:hover {
+      background: var(--coral);
+      border-color: var(--coral);
+    }
+    #scroll-up svg {
+      display: block;
+      transition: transform 0.2s ease;
+    }
+    #scroll-up:hover svg {
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 640px) {
+      #scroll-up { bottom: 20px; right: 20px; width: 40px; height: 40px; }
+    }
   </style>
 </head>
 <body>
@@ -1520,19 +1562,19 @@
             and warmth come together in every appointment.
           </p>
           <div class="footer-social">
-            <a href="#" class="social-link" aria-label="Instagram">
+            <a href="https://www.instagram.com/touchehairdressingcaterham/" target="_blank" rel="noopener" class="social-link" aria-label="Instagram">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
                 <circle cx="12" cy="12" r="4"/>
                 <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
               </svg>
             </a>
-            <a href="#" class="social-link" aria-label="Facebook">
+            <a href="https://www.facebook.com/touchehaircaterham" target="_blank" rel="noopener" class="social-link" aria-label="Facebook">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </a>
-            <a href="#" class="social-link" aria-label="TikTok">
+            <a href="https://www.tiktok.com/@touchehairdressing" target="_blank" rel="noopener" class="social-link" aria-label="TikTok">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path d="M9 12a4 4 0 104 4V4a5 5 0 005 5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -1596,6 +1638,13 @@
     </div>
   </footer>
 
+  <!-- ── Scroll-Up Button ───────────────────────────────────────── -->
+  <button id="scroll-up" aria-label="Scroll up to previous section">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"/>
+    </svg>
+  </button>
+
   <!-- ── SalonSpy Widget ────────────────────────────────────────── -->
   <script async src="https://www.salonspy.com/widgets/v2/dist/js/widget.min.js"></script>
 
@@ -1631,6 +1680,44 @@
         }
       });
     });
+
+    // Scroll-up button — scrolls to the previous section
+    (function () {
+      const btn = document.getElementById('scroll-up');
+      const sections = Array.from(document.querySelectorAll('section'));
+
+      function update() {
+        const scrollY = window.scrollY;
+        // Show once we've scrolled past the hero
+        btn.classList.toggle('visible', scrollY > 400);
+      }
+
+      btn.addEventListener('click', () => {
+        const scrollY = window.scrollY + 1; // +1 to avoid floating point edge cases
+        // Find the section whose top is above current scroll position
+        // Walk backwards to find the previous section
+        let prev = null;
+        for (let i = sections.length - 1; i >= 0; i--) {
+          if (sections[i].offsetTop < scrollY - 10) {
+            // Go one further back if we're very close to the top of this section
+            if (scrollY - sections[i].offsetTop < 60 && i > 0) {
+              prev = sections[i - 1];
+            } else {
+              prev = sections[i];
+            }
+            break;
+          }
+        }
+        if (prev) {
+          prev.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    })();
 
   </script>
 
