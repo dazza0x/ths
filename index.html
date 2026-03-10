@@ -1038,6 +1038,42 @@
 
     .footer-legal a:hover { color: rgba(250, 246, 241, 0.55); }
 
+    /* ── Reviews ───────────────────────────────────────────────── */
+    .reviews {
+      padding: var(--section-py) 0;
+      background: var(--cream-dk);
+    }
+
+    .reviews-header {
+      text-align: center;
+      max-width: 580px;
+      margin: 0 auto 52px;
+    }
+
+    .reviews-header .section-eyebrow {
+      justify-content: center;
+    }
+
+    .reviews-header .section-eyebrow::before { display: none; }
+
+    .reviews-header .section-eyebrow::after {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 1.5px;
+      background: var(--coral);
+    }
+
+    .reviews-widget {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Ensure the widget blends with the page background */
+    .reviews-widget salonspy-widget {
+      display: block;
+    }
+
     /* ── Animations ────────────────────────────────────────────── */
     .fade-up {
       opacity: 0;
@@ -1435,6 +1471,21 @@
     </div>
   </section>
 
+  <!-- ── Reviews ───────────────────────────────────────────────── -->
+  <section class="reviews" id="reviews">
+    <div class="container">
+      <div class="reviews-header">
+        <div class="section-eyebrow fade-up">Client Reviews</div>
+        <h2 class="section-heading fade-up fade-up-delay-1">
+          Hear it from our <em>clients</em>
+        </h2>
+      </div>
+      <div class="reviews-widget fade-up fade-up-delay-2">
+        <salonspy-widget data-token="cb38b69e49a0d4ace4aa6e8e24d82dcb" data-type="salon"></salonspy-widget>
+      </div>
+    </div>
+  </section>
+
   <!-- ── CTA ────────────────────────────────────────────────────── -->
   <section class="cta" id="contact">
     <div class="cta-inner">
@@ -1544,6 +1595,9 @@
       </div>
     </div>
   </footer>
+
+  <!-- ── SalonSpy Widget ────────────────────────────────────────── -->
+  <script async src="https://www.salonspy.com/widgets/v2/dist/js/widget.min.js"></script>
 
   <!-- ── Scripts ────────────────────────────────────────────────── -->
   <script>
