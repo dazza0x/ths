@@ -1121,6 +1121,16 @@
       .brand-accent-box { width: 100px; height: 100px; bottom: -16px; right: -16px; }
     }
 
+    /* ── Hair Canvas ───────────────────────────────────────────── */
+    #hair-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
     /* ── Scroll-Up Button ──────────────────────────────────────── */
     #scroll-up {
       position: fixed;
@@ -1183,6 +1193,7 @@
   <!-- ── Hero ───────────────────────────────────────────────────── -->
   <section class="hero">
     <div class="hero-bg"></div>
+    <canvas id="hair-canvas" aria-hidden="true"></canvas>
     <div class="container">
       <div class="hero-content">
         <div class="hero-eyebrow">Caterham's Premier Hair Studio</div>
@@ -1717,6 +1728,121 @@
 
       window.addEventListener('scroll', update, { passive: true });
       update();
+    })();
+
+    // ── Hair strand canvas animation ─────────────────────────────
+    (function () {
+      const canvas = document.getElementById('hair-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let W, H, strands = [];
+
+      function rand(a, b) { return a + Math.random() * (b - a); }
+      function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+      function buildStrands() {
+        strands = [];
+        // Scale strand count to viewport width; reduce on mobile
+        const count = Math.round(clamp(W / 16, 28, 80));
+
+        for (let i = 0; i < count; i++) {
+          // rx: root position as fraction of canvas width
+          // Weighted toward right side — use sqrt to pull distribution rightward
+          const rx = Math.sqrt(rand(0, 1)) * 0.78 + 0.12;
+
+          strands.push({
+            rx,
+            startY:      rand(-H * 0.18, H * 0.04),
+            length:      rand(H * 0.60, H * 1.25),
+            width:       rand(0.25, 0.95),
+            baseOpacity: rand(0.09, 0.28),
+            phase:       rand(0, Math.PI * 2),
+            freq:        rand(0.22, 0.60),
+            amp:         rand(10, 46),
+            // slight natural drape so no strand is perfectly vertical
+            curve:       rand(-18, 18),
+            // warm cream-to-gold palette:  hue 26–44, sat 14–38%, light 65–88%
+            hsl: Math.round(rand(26, 44)) + ',' + Math.round(rand(14, 38)) + '%,' + Math.round(rand(65, 88)) + '%',
+          });
+        }
+        // Paint most-transparent strands first (painter's algorithm)
+        strands.sort((a, b) => a.baseOpacity - b.baseOpacity);
+      }
+
+      function resize() {
+        W = canvas.width  = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+        buildStrands();
+      }
+
+      function drawStrand(s, t) {
+        // --- Horizontal fade: strands invisible on far-left (behind text), full from ~55% ---
+        const xFade = clamp((s.rx - 0.30) / 0.25, 0, 1);
+        if (xFade < 0.01) return;
+
+        const rootX = s.rx * W;
+        const N = 10; // control points along each strand
+        const pts = [];
+
+        for (let i = 0; i <= N; i++) {
+          const p = i / N;
+          // Tips oscillate more than roots (quadratic wind factor)
+          const wf = p * p;
+
+          const x = rootX
+            + s.curve * p
+            + Math.sin(t * s.freq        + s.phase           + p * 2.2) * s.amp * wf
+            + Math.sin(t * s.freq * 0.58 + s.phase * 1.8     + p * 3.9) * s.amp * 0.28 * wf;
+
+          const y = s.startY + s.length * p;
+          pts.push({ x, y });
+        }
+
+        // --- Bottom fade: strands dissolve before reaching the hero edge ---
+        const tip = s.startY + s.length;
+        const bottomFade = clamp((H * 0.92 - tip) / (H * 0.18) + 1, 0, 1);
+
+        const opacity = s.baseOpacity * xFade * bottomFade;
+        if (opacity < 0.005) return;
+
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 0; i < pts.length - 1; i++) {
+          const mx = (pts[i].x + pts[i + 1].x) * 0.5;
+          const my = (pts[i].y + pts[i + 1].y) * 0.5;
+          ctx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my);
+        }
+        ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+
+        ctx.strokeStyle = 'hsla(' + s.hsl + ',' + opacity + ')';
+        ctx.lineWidth   = s.width;
+        ctx.lineCap     = 'round';
+        ctx.stroke();
+      }
+
+      // Pause when hero scrolls out of view (saves battery / CPU)
+      let heroVisible = true;
+      const vis = new IntersectionObserver(([e]) => {
+        heroVisible = e.isIntersecting;
+      }, { threshold: 0 });
+      vis.observe(canvas.closest('section'));
+
+      function animate(ts) {
+        requestAnimationFrame(animate);
+        if (!heroVisible) return;
+        const t = ts * 0.00034; // very slow drift
+        ctx.clearRect(0, 0, W, H);
+        for (const s of strands) drawStrand(s, t);
+      }
+
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(resize, 160);
+      });
+
+      resize();
+      requestAnimationFrame(animate);
     })();
 
   </script>
